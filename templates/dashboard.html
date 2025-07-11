@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- 🌌 Futuristic Gradient Background -->
+<div class="min-h-screen bg-gradient-to-tr from-[#0f2027] via-[#203a43] to-[#2c5364] text-white relative overflow-hidden">
+  
+  <!-- Grid dots as background overlay -->
+  <div class="absolute inset-0 bg-[radial-gradient(circle,_rgba(255,255,255,0.05)_1px,_transparent_1px)] [background-size:30px_30px] pointer-events-none z-0"></div>
+
+  <!-- Main Glass Content Box -->
+  <div class="relative z-10 max-w-6xl mx-auto px-6 py-12">
+    
+    <!-- Settings Button (Top-right) -->
+    <div class="flex justify-end mb-6 mt-6">
+      <button onclick="document.getElementById('settingsModal').classList.remove('hidden')" class="bg-white/10 hover:bg-white/20 backdrop-blur px-4 py-2 rounded-lg shadow text-white">
+        ⚙️ Settings
+      </button>
+    </div>
+
+    <!-- Modal (Hidden by default) -->
+    <div id="settingsModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
+      <div class="bg-white/10 backdrop-blur-md text-white p-6 rounded-xl shadow-xl w-80 relative">
+        <button onclick="document.getElementById('settingsModal').classList.add('hidden')" class="absolute top-3 right-3 text-white hover:text-red-400 text-lg">&times;</button>
+        <h2 class="text-xl font-semibold mb-4">Email Settings</h2>
+
+        <form method="POST" action="{{ url_for('update_settings') }}" class="space-y-4">
+          <div class="flex justify-between items-center">
+            <label for="wants_email">Receive Daily Email?</label>
+            <input type="checkbox" id="wants_email" name="wants_email" value="yes" {% if current_user.wants_email %}checked{% endif %} class="accent-blue-500 scale-125">
+          </div>
+
+          <div>
+            <label for="email_hour" class="block mb-1">Preferred Hour (0–23):</label>
+            <input type="number" name="email_hour" id="email_hour" min="0" max="23" value="{{ current_user.email_hour }}" class="w-full px-2 py-1 rounded bg-white text-gray-900">
+          </div>
+
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded font-semibold">Save</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Header Text -->
+    <div class="text-center mb-12">
+      <h1 class="text-3xl font-semibold text-white mb-4 mt-6 text-center drop-shadow">Your Weather at a Glance</h1>
+      <p class="text-gray-300 mt-2">Track your favorite cities' weather in real time</p>
+    </div>
+
+    <!-- Add City Form -->
+    <form method="POST" class="flex flex-col sm:flex-row justify-center items-center gap-2 mb-2">
+      <input 
+        type="text" 
+        name="city" 
+        placeholder="Enter city name" 
+        required
+        class="w-full sm:w-[300px] p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white text-gray-900 text-center"
+      />
+      <button 
+        type="submit" 
+        class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 w-full sm:w-auto"
+      >
+        Add
+      </button>
+    </form>
+
+    <!-- Error / Success Messages -->
+    {% if message %}
+    <div class="text-sm mt-1 text-center {% if message_type == 'error' %}text-red-400{% else %}text-green-400{% endif %}">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    <!-- Cards Carousel -->
+    <div class="relative flex items-center justify-center mt-12">
+      <!-- Left Arrow -->
+      <button id="prevBtn" class="absolute left-[-50px] top-1/2 transform -translate-y-1/2 px-4 py-2 bg-white/10 text-white border border-white/30 rounded-full hover:bg-white/20 transition">
+        ‹
+      </button>
+
+      <!-- Cards Container -->
+      <div id="carousel" class="flex justify-center items-center gap-6 w-full max-w-5xl overflow-hidden">
+        {% for weather in weather_data %}
+        <div
+          class="weather-card relative rounded-2xl border border-white/20 shadow-lg cursor-pointer transition-all duration-300 ease-in-out flex-shrink-0 overflow-hidden"
+          style="width: 18rem; height: 26rem; background-image: url('{{ weather.background_image }}');
+                 background-size: cover; background-position: center;">
+
+          <!-- Overlay -->
+          <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+
+          <!-- Content -->
+          <div class="relative z-10 text-white p-6 flex flex-col h-full justify-between">
+            <form action="{{ url_for('delete_city') }}" method="POST" class="absolute top-3 right-4 z-20">
+              <input type="hidden" name="city_id" value="{{ weather.id }}">
+              <button type="submit" class="text-2xl font-bold text-white hover:text-red-500 transition">&times;</button>
+            </form>
+
+            <div class="flex justify-between items-center">
+              <div class="flex flex-col items-center">
+                <img src="http://openweathermap.org/img/wn/{{ weather.icon }}@2x.png" alt="icon" class="w-20 h-20">
+                <h2 class="text-xl font-semibold">{{ weather.city }}</h2>
+                <p class="text-sm capitalize text-gray-300">{{ weather.description }}</p>
+              </div>
+              <span class="text-5xl font-bold">{{ weather.temperature }}°</span>
+            </div>
+
+            <div class="flex justify-between text-center text-sm">
+              {% for day in weather.forecast[:3] %}
+              <div class="flex flex-col items-center text-white drop-shadow">
+                <span>{{ day.date.split("-")[2] }}/{{ day.date.split("-")[1] }}</span>
+                <img src="http://openweathermap.org/img/wn/{{ day.icon }}.png" class="w-8 h-8" alt="icon">
+                <div class="relative w-16 h-2 mt-1 bg-gray-300 rounded-full">
+                  <div class="absolute h-2 rounded-full bg-gradient-to-r from-blue-400 to-red-400"
+                    style="left: {{ day.bar_left | default(0) }}%; width: {{ day.bar_width | default(0) }}%;">
+                  </div>
+                </div>
+                <div class="flex justify-between w-16 text-xs mt-1">
+                  <span class="text-blue-400">{{ day.min_temp | round }}°</span>
+                  <span class="text-red-400">{{ day.max_temp | round }}°</span>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Right Arrow -->
+      <button id="nextBtn" class="absolute right-[-50px] top-1/2 transform -translate-y-1/2 px-4 py-2 bg-white/10 text-white border border-white/30 rounded-full hover:bg-white/20 transition">
+        ›
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}

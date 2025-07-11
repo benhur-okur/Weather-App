@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+    </style>
+  
+    <meta charset="UTF-8">
+    <title>{% block title %}Weather App{% endblock %}</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/carousel.css') }}">
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+          <!--Navbar -->
+      <nav class="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 bg-opacity-80 backdrop-blur-md shadow-md p-4 text-white flex justify-between items-center">
+        
+        <!-- Logo -->
+        <div class="text-xl font-bold tracking-wide drop-shadow">Weather App</div>
+
+        <!-- Saat -->
+        <div id="clock"
+            class="absolute left-1/2 transform -translate-x-1/2 bg-white/20 px-4 py-1 rounded-full shadow-md text-sm font-semibold backdrop-blur-sm border border-white/20">
+        </div>
+
+        <div class="space-x-4 text-sm font-medium">
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}" class="hover:underline hover:text-yellow-300 transition">Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="hover:underline hover:text-red-300 transition">Logout</a>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="hover:underline hover:text-green-300 transition">Login</a>
+            <a href="{{ url_for('register') }}" class="hover:underline hover:text-cyan-300 transition">Register</a>
+          {% endif %}
+        </div>
+
+      </nav>
+
+
+    <!-- Page Content -->
+    {% block content %}{% endblock %}
+
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='js/carousel.js') }}"></script>
+</body>
+</html>

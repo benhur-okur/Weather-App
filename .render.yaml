@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: weather-app
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: SECRET_KEY
+      - key: MAIL_USERNAME
+      - key: MAIL_PASSWORD
+      - key: OPENWEATHER_ACCESS_KEY

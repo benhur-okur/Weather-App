@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to Weather App{% endblock %}
+
+{% block content %}
+<section class="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-400 via-cyan-300 to-indigo-500 text-white px-6 text-center">
+
+  <h1 class="text-5xl font-extrabold mb-6 drop-shadow-lg">
+    Welcome to Weather App
+  </h1>
+
+  <p class="max-w-xl text-lg md:text-xl mb-10 drop-shadow-md">
+    Get accurate, real-time weather forecasts tailored for your favorite cities.
+    Stay updated and plan your day with confidence.
+  </p>
+
+  <div class="flex space-x-6">
+    <a href="{{ url_for('login') }}"
+       class="px-6 py-3 bg-white bg-opacity-20 hover:bg-opacity-40 rounded-lg font-semibold transition duration-300">
+      Login
+    </a>
+
+    <a href="{{ url_for('register') }}"
+       class="px-6 py-3 bg-white bg-opacity-20 hover:bg-opacity-40 rounded-lg font-semibold transition duration-300">
+      Register
+    </a>
+  </div>
+</section>
+{% endblock %}
